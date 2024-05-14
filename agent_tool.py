@@ -2,11 +2,10 @@ import os
 import requests
 
 from dotenv import load_dotenv
-from typing import Optional, Type
+from typing import Type
 
 from langchain import hub
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain.tools import BaseTool
 from langchain_openai import ChatOpenAI
@@ -19,7 +18,7 @@ class SearchInput(BaseModel):
     """
     City input for event search tool
     """
-    city: str = Field(description="the name of the user's city")
+    city: str = Field(description="the name of the city")
 
 
 class EventSearchTool(BaseTool):
@@ -27,17 +26,15 @@ class EventSearchTool(BaseTool):
     Tool for searching events in the city
     """
     name = "event_search"
-    description = "useful when user asks about some events in the city"
+    description = "Use this tool when the user asks about some events in the city"
     args_schema: Type[BaseModel] = SearchInput
 
     def _run(
             self,
             city: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> list:
         """
         :param city: the name of the city
-        :param run_manager: the manager for tool run
         :return: list of events
         """
         events_api = ('https://api.seatgeek.com/2/events?venue.city='
@@ -59,7 +56,7 @@ class MessageInput(BaseModel):
     """
     Message input for telegram message tool
     """
-    message: str = Field(description="the message for telegram user")
+    message: str = Field(description="the message to sent to telegram user")
 
 
 class SendTelegramMessageTool(BaseTool):
@@ -67,17 +64,15 @@ class SendTelegramMessageTool(BaseTool):
     Tool for sending message to telegram chat
     """
     name = "send_telegram"
-    description = "useful when user asks to send information to telegram chat"
+    description = "Use this tool when the user asks to send information to telegram chat"
     args_schema: Type[BaseModel] = MessageInput
 
     def _run(
             self,
             message: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """
         :param message: the message for telegram user
-        :param run_manager: the manager for tool run
         :return: the message for telegram user
         """
         token = os.getenv('BOT_TOKEN')
